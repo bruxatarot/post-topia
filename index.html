@@ -47,6 +47,7 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 
 /* Corkboard */
 .corkboard{background:var(--cork);border-radius:24px;border:3px solid var(--cork-dark);padding:1.5rem;min-height:400px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;align-content:start;position:relative}
+.empty-board{grid-column:1/-1;text-align:center;color:#8a6f4a;font-weight:700;padding:2rem;opacity:.7}
 
 /* Post-it note */
 .note-card{position:relative;border-radius:var(--radius-note);padding:1.1rem 1rem 1.5rem;min-height:170px;box-shadow:3px 4px 12px rgba(0,0,0,.13);transform:rotate(var(--rot,0deg));transition:transform .2s,box-shadow .2s;cursor:pointer;display:flex;flex-direction:column;gap:.5rem;animation:dropIn .4s cubic-bezier(.34,1.56,.64,1)}
@@ -57,7 +58,9 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .note-mood-emoji{font-size:1.6rem;line-height:1}
 .note-text{font-size:.88rem;font-weight:600;color:#4a3a5a;line-height:1.5;flex:1;word-break:break-word}
 .note-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,.08)}
-.note-author{font-size:.72rem;font-weight:700;color:rgba(80,60,100,.5)}
+.note-author{font-size:.72rem;font-weight:700;color:rgba(80,60,100,.5);display:flex;align-items:center;gap:.3rem}
+.note-mascot-icon{width:16px;height:18px;display:inline-flex;flex-shrink:0}
+.note-mascot-icon svg{width:100%;height:100%}
 .note-reactions{display:flex;gap:.3rem}
 .reaction-sticker{font-size:1rem;cursor:pointer;transition:transform .15s;line-height:1}
 .reaction-sticker:hover{transform:scale(1.3)}
@@ -71,6 +74,13 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .modal-close:hover{color:#9060b0}
 .modal-title{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:1rem;text-align:center}
 .postiboo-writer{position:absolute;top:-52px;right:2rem;font-size:2.8rem;animation:float 2.5s ease-in-out infinite;pointer-events:none;user-select:none;z-index:5}
+.companion-row{display:flex;align-items:center;gap:.5rem;background:#faf5ff;border:2px solid #ecdcf8;border-radius:50px;padding:.4rem .5rem .4rem .4rem;margin-bottom:1.2rem;justify-content:center}
+.companion-mascot{width:30px;height:33px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.companion-mascot svg{width:100%;height:100%}
+.companion-text{font-size:.78rem;color:var(--text-soft)}
+.companion-text strong{color:var(--text)}
+.companion-change{background:white;border:2px solid #c090e0;color:#9050c0;font-weight:700;font-size:.72rem;cursor:pointer;border-radius:50px;padding:.25rem .7rem;margin-left:auto;font-family:var(--font)}
+.companion-change:hover{background:var(--lavender)}
 
 /* Mood grid */
 .mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1.2rem}
@@ -98,6 +108,7 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .anon-toggle input{accent-color:#c090e0}
 .btn-drop{background:linear-gradient(135deg,#f48fb1,#ce93d8);border:none;color:white;padding:.65rem 1.6rem;border-radius:50px;font-family:var(--font);font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(240,100,160,.35);transition:transform .15s,box-shadow .15s}
 .btn-drop:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 6px 20px rgba(240,100,160,.45)}
+.btn-drop:disabled{opacity:.6;cursor:not-allowed;transform:none}
 
 /* Auth modal */
 .auth-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:24px;padding:2rem;border:2px solid #e8d0f0;z-index:150;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.2);display:none}
@@ -116,6 +127,9 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .response-option:hover{background:var(--lavender);border-color:#c090e0}
 .response-option strong{color:var(--text);display:block;margin-bottom:.3rem}
 .response-option small{color:var(--text-soft)}
+.existing-responses{margin-bottom:1rem;max-height:160px;overflow-y:auto}
+.existing-response-item{background:#f8f0ff;border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;font-size:.85rem;color:var(--text);word-break:break-word}
+.existing-responses-empty{font-size:.8rem;color:var(--text-soft);text-align:center;padding:.5rem 0}
 
 /* Postibits + Tienda */
 .postibits-badge{display:flex;align-items:center;gap:.3rem;background:var(--yellow);border:2px solid #f0d060;border-radius:50px;padding:.4rem .9rem;font-weight:800;font-size:.85rem;color:#a07820}
@@ -206,6 +220,12 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
     <div class="postiboo-writer" id="postibooWriter"></div>
     <h2 class="modal-title">¿Cómo te sientes hoy?</h2>
 
+    <div class="companion-row">
+      <span class="companion-mascot" id="companionMascotIcon"></span>
+      <span class="companion-text">Tu compañero: <strong id="companionMascotName">Posti-boo</strong></span>
+      <button type="button" class="companion-change" id="changeMascotBtn">Cambiar 🛍️</button>
+    </div>
+
     <div class="mood-grid" id="moodGrid"></div>
 
     <div class="note-prompt">
@@ -257,13 +277,37 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
   <button class="modal-close" onclick="closeResponseModal()">×</button>
   <h3 id="responseTitle" style="margin-bottom:1rem;color:var(--text);font-size:1.1rem"></h3>
   <p id="responseText" style="margin-bottom:1.5rem;color:var(--text);line-height:1.6"></p>
+  <p class="section-label" style="margin-top:0">💬 Respuestas de la comunidad</p>
+  <div id="existingResponses" class="existing-responses"></div>
+  <p class="section-label">Respuestas rápidas</p>
   <div id="responseOptions"></div>
+  <p class="section-label">O escribe tu propio mensaje</p>
+  <textarea id="customResponseText" class="modal-textarea" style="height:70px" maxlength="240" placeholder="Comparte tu apoyo, consejo o historia parecida…"></textarea>
+  <button id="sendCustomResponse" class="btn-drop" style="width:100%;margin-top:.6rem">Enviar 💌</button>
 </div>
 
-<script>
-const JSONBIN_ID='6a43ff66da38895dfe174ee1';
-const JSONBIN_KEY='$2a$.MPz.hKIGgyMouTFoHGu9udCba9WU7b96ecbeHmz3m6Ha0lHbphSG';
-const API_URL=`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, addDoc,
+  onSnapshot, query, orderBy, updateDoc, arrayUnion, increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyA2jAsgWPBl4x13GaRWsAKSdAdER2nsXls",
+  authDomain:"post-itopia.firebaseapp.com",
+  projectId:"post-itopia",
+  storageBucket:"post-itopia.firebasestorage.app",
+  messagingSenderId:"965140583784",
+  appId:"1:965140583784:web:88097b45c2ec243c3df2dd"
+};
+const fbApp=initializeApp(firebaseConfig);
+const auth=getAuth(fbApp);
+const db=getFirestore(fbApp);
 
 const MOOD_COLORS={calm:'#c8f0dc',sad:'#b3c6e8',overwhelmed:'#e8c3e8',angry:'#f4b8b8',confused:'#ffd9a8',lonely:'#dce8f0',anxious:'#c9d4f0',grateful:'#fff0b8',motivated:'#ffe0b8',drained:'#cfd8dc',hopeful:'#b8eaf4'};
 const MOOD_EMOJIS={calm:'😌',sad:'😔',overwhelmed:'😵',angry:'😡',confused:'😕',lonely:'🤍',anxious:'🧿',grateful:'✨',motivated:'🔥',drained:'🌧️',hopeful:'🌈'};
@@ -283,40 +327,39 @@ const MASCOTS={
 };
 const STARTING_POSTIBITS=20;
 
-let data={users:[],notes:[]};
 let currentUser=null;
+let currentUserData=null;
+let allNotes=[];
 let selectedMood=null;
 let currentFilter='all';
 let isAuthLogin=true;
+let unsubUserDoc=null;
+let currentOpenNoteId=null;
 
-async function fetchData(){
-  try{
-    const res=await fetch(API_URL,{headers:{'X-Access-Key':JSONBIN_KEY}});
-    const json=await res.json();
-    data=json.record||{users:[],notes:[]};
-    return data;
-  }catch(e){console.error('Fetch error:',e);return data}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+
+function escapeHtml(str){
+  const div=document.createElement('div');
+  div.textContent=str;
+  return div.innerHTML;
 }
 
-async function saveData(){
-  try{
-    await fetch(API_URL,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Access-Key':JSONBIN_KEY},
-      body:JSON.stringify(data)
-    });
-  }catch(e){console.error('Save error:',e)}
+function usernameToEmail(username){
+  const clean=username.toLowerCase().replace(/[^a-z0-9]/g,'');
+  return clean?clean+'@postitopia.app':null;
 }
 
-function hashPassword(p){
-  let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h=h&h}
-  return h.toString(36);
+function showToast(msg){
+  const toast=document.getElementById('toast');
+  toast.textContent=msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3000);
 }
 
-async function init(){
-  await fetchData();
+function init(){
   renderMoodGrid();
   document.getElementById('postibooWriter').innerHTML=POSTIBOO;
+  document.getElementById('companionMascotIcon').innerHTML=POSTIBOO;
 
   document.getElementById('newNoteBtn').onclick=()=>document.getElementById('createNoteModal').classList.add('active');
   document.getElementById('closeCreateModal').onclick=()=>closeCreateModal();
@@ -333,6 +376,11 @@ async function init(){
 
   document.getElementById('noteText').oninput=function(){document.getElementById('charCount').textContent=this.value.length};
   document.getElementById('dropBtn').onclick=dropNote;
+  document.getElementById('changeMascotBtn').onclick=()=>{
+    closeCreateModal();
+    showStoreModal();
+  };
+  document.getElementById('sendCustomResponse').onclick=sendCustomResponse;
 
   document.querySelectorAll('.filter-btn').forEach(btn=>{
     btn.onclick=()=>{
@@ -343,99 +391,208 @@ async function init(){
     };
   });
 
-  await checkSession();
-  renderFeed();
+  listenToNotes();
+  onAuthStateChanged(auth,handleAuthStateChange);
 }
 
-async function checkSession(){
-  const u=localStorage.getItem('postopia_user');
-  if(u){
-    currentUser=JSON.parse(u);
-    const rec=getUserRecord(currentUser.id);
-    if(rec){
-      ensureUserDefaults(rec);
+function listenToNotes(){
+  const q=query(collection(db,'notes'),orderBy('timestamp','desc'));
+  onSnapshot(q,(snap)=>{
+    allNotes=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderFeed();
+  },(err)=>{console.error('notes listener error',err)});
+}
+
+function listenToUserDoc(uid){
+  if(unsubUserDoc){unsubUserDoc();unsubUserDoc=null}
+  unsubUserDoc=onSnapshot(doc(db,'users',uid),(snap)=>{
+    if(!snap.exists())return;
+    currentUserData=snap.data();
+    updatePostibitsBadge();
+    updateWriterMascot();
+    if(document.getElementById('storeModal').classList.contains('active'))renderStoreContent();
+    if(document.getElementById('authModal').classList.contains('active')&&currentUser)renderProfileContent();
+  },(err)=>{console.error('user doc listener error',err)});
+}
+
+async function handleAuthStateChange(user){
+  if(unsubUserDoc){unsubUserDoc();unsubUserDoc=null}
+  if(user){
+    try{
+      const snap=await getDoc(doc(db,'users',user.uid));
+      if(!snap.exists()){
+        currentUser=null;currentUserData=null;
+        updateProfileButton();updatePostibitsBadge();updateWriterMascot();
+        return;
+      }
+      currentUserData=snap.data();
+      currentUser={id:user.uid,username:currentUserData.username};
+      listenToUserDoc(user.uid);
       const result=await processLoginStreak();
       if(result&&result.awarded>0){
         showToast(`¡Racha de ${result.streak} días! +${result.awarded} 🥧`);
       }
-    }else{
-      currentUser=null;
-      localStorage.removeItem('postopia_user');
-    }
-    updateProfileButton();
-    updatePostibitsBadge();
-    updateWriterMascot();
+    }catch(e){console.error('auth state change error',e)}
+  }else{
+    currentUser=null;
+    currentUserData=null;
   }
-}
-
-function getUserRecord(id){
-  return data.users.find(u=>u.id===id);
-}
-
-function ensureUserDefaults(u){
-  if(u.postibits===undefined)u.postibits=STARTING_POSTIBITS;
-  if(u.loginStreak===undefined)u.loginStreak=0;
-  if(u.lastLoginDate===undefined)u.lastLoginDate=null;
-  if(!u.ownedMascots)u.ownedMascots=['postiboo'];
-  if(!u.equippedMascot)u.equippedMascot='postiboo';
-  return u;
-}
-
-function todayStr(){
-  return new Date().toISOString().slice(0,10);
+  updateProfileButton();
+  updatePostibitsBadge();
+  updateWriterMascot();
 }
 
 async function processLoginStreak(){
-  if(!currentUser)return null;
-  const u=getUserRecord(currentUser.id);
-  if(!u)return null;
-  ensureUserDefaults(u);
+  if(!currentUser||!currentUserData)return null;
   const today=todayStr();
-  if(u.lastLoginDate===today)return null;
+  if(currentUserData.lastLoginDate===today)return null;
 
   const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
-  u.loginStreak=(u.lastLoginDate===yesterday)?u.loginStreak+1:1;
-  u.lastLoginDate=today;
+  const newStreak=(currentUserData.lastLoginDate===yesterday)?(currentUserData.loginStreak||0)+1:1;
+  const awarded=(newStreak%7===0)?5:0;
 
-  let awarded=0;
-  if(u.loginStreak%7===0){
-    u.postibits+=5;
-    awarded=5;
-  }
-  await saveData();
-  return{streak:u.loginStreak,awarded};
+  try{
+    await updateDoc(doc(db,'users',currentUser.id),{
+      loginStreak:newStreak,
+      lastLoginDate:today,
+      postibits:increment(awarded)
+    });
+  }catch(e){console.error('streak update error',e)}
+  return{streak:newStreak,awarded};
 }
 
 function updatePostibitsBadge(){
   const badge=document.getElementById('postibitsBadge');
   const amt=document.getElementById('postibitsAmount');
-  if(currentUser){
-    const u=getUserRecord(currentUser.id);
-    if(u){
-      ensureUserDefaults(u);
-      amt.textContent=u.postibits;
-      badge.style.display='flex';
-      return;
-    }
+  if(currentUser&&currentUserData){
+    amt.textContent=currentUserData.postibits;
+    badge.style.display='flex';
+  }else{
+    badge.style.display='none';
   }
-  badge.style.display='none';
 }
 
 function updateWriterMascot(){
-  const writer=document.getElementById('postibooWriter');
-  let svg=POSTIBOO;
-  if(currentUser){
-    const u=getUserRecord(currentUser.id);
-    if(u&&u.equippedMascot&&MASCOTS[u.equippedMascot])svg=MASCOTS[u.equippedMascot].svg;
+  const equippedId=(currentUserData&&currentUserData.equippedMascot&&MASCOTS[currentUserData.equippedMascot])?currentUserData.equippedMascot:'postiboo';
+  const mascot=MASCOTS[equippedId];
+
+  document.getElementById('postibooWriter').innerHTML=mascot.svg;
+
+  const companionIcon=document.getElementById('companionMascotIcon');
+  const companionName=document.getElementById('companionMascotName');
+  if(companionIcon&&companionName){
+    companionIcon.innerHTML=mascot.svg;
+    companionName.textContent=mascot.name;
   }
-  writer.innerHTML=svg;
 }
 
-function showToast(msg){
-  const toast=document.getElementById('toast');
-  toast.textContent=msg;
-  toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),3000);
+function getEquippedMascotId(){
+  return(currentUserData&&currentUserData.equippedMascot&&MASCOTS[currentUserData.equippedMascot])?currentUserData.equippedMascot:'postiboo';
+}
+
+function updateProfileButton(){
+  const btn=document.getElementById('profileBtn');
+  btn.textContent=currentUser?'👤 '+currentUser.username:'👤 Entrar';
+}
+
+function showProfileModal(){
+  renderProfileContent();
+  document.getElementById('authModal').classList.add('active');
+}
+
+function renderProfileContent(){
+  const content=document.getElementById('authContent');
+
+  if(currentUser&&currentUserData){
+    content.innerHTML=`
+      <div style="margin:1rem 0;text-align:center">
+        <p style="color:var(--text);margin-bottom:.8rem">Hola, <strong>${currentUser.username}</strong> 💛</p>
+        <div class="postibits-badge" style="margin:0 auto;width:fit-content">🥧 ${currentUserData.postibits} Postibits</div>
+        <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 🥧</p>
+        <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%;margin-bottom:.5rem">🛍️ Ir a la tienda</button>
+        <button onclick="logout()" class="btn btn-secondary" style="width:100%">Salir</button>
+      </div>
+    `;
+  }else{
+    content.innerHTML=`
+      <form id="authForm" style="display:flex;flex-direction:column;gap:1rem;margin:1rem 0">
+        <input class="auth-input" id="authUsername" type="text" placeholder="Tu nombre de usuario" required/>
+        <input class="auth-input" id="authPassword" type="password" placeholder="Contraseña (mínimo 6 caracteres)" required minlength="6"/>
+        <button type="submit" class="btn btn-primary" style="width:100%">${isAuthLogin?'Entrar':'Crear cuenta'}</button>
+        <div id="authError" class="auth-error"></div>
+      </form>
+      <div class="auth-toggle">
+        ${isAuthLogin?'¿Sin cuenta?':'¿Ya tienes cuenta?'} <button type="button" onclick="toggleAuthMode()">Click aquí</button>
+      </div>
+    `;
+    document.getElementById('authForm').onsubmit=handleAuth;
+  }
+}
+
+function mapAuthError(code){
+  const map={
+    'auth/email-already-in-use':'Este usuario ya existe',
+    'auth/invalid-credential':'Usuario o contraseña incorrectos',
+    'auth/wrong-password':'Usuario o contraseña incorrectos',
+    'auth/user-not-found':'Usuario o contraseña incorrectos',
+    'auth/weak-password':'La contraseña debe tener al menos 6 caracteres',
+    'auth/too-many-requests':'Demasiados intentos, espera un momento 🫧'
+  };
+  return map[code]||'Algo salió mal, intenta de nuevo';
+}
+
+async function handleAuth(e){
+  e.preventDefault();
+  const un=document.getElementById('authUsername').value.trim();
+  const pw=document.getElementById('authPassword').value;
+  const err=document.getElementById('authError');
+  err.style.display='none';
+
+  if(!un||!pw){err.textContent='Completa todos los campos';err.style.display='block';return}
+  if(pw.length<6){err.textContent='La contraseña debe tener al menos 6 caracteres';err.style.display='block';return}
+
+  const email=usernameToEmail(un);
+  if(!email){err.textContent='Usa al menos una letra o número en tu nombre de usuario';err.style.display='block';return}
+
+  const submitBtn=e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled=true;
+
+  try{
+    if(isAuthLogin){
+      await signInWithEmailAndPassword(auth,email,pw);
+    }else{
+      const cred=await createUserWithEmailAndPassword(auth,email,pw);
+      await setDoc(doc(db,'users',cred.user.uid),{
+        username:un,
+        postibits:STARTING_POSTIBITS,
+        loginStreak:0,
+        lastLoginDate:null,
+        ownedMascots:['postiboo'],
+        equippedMascot:'postiboo'
+      });
+    }
+    closeAuthModal();
+  }catch(error){
+    console.error('auth error',error);
+    err.textContent=mapAuthError(error.code);
+    err.style.display='block';
+  }finally{
+    submitBtn.disabled=false;
+  }
+}
+
+function toggleAuthMode(){
+  isAuthLogin=!isAuthLogin;
+  renderProfileContent();
+}
+
+function closeAuthModal(){
+  document.getElementById('authModal').classList.remove('active');
+}
+
+function logout(){
+  signOut(auth);
+  closeAuthModal();
 }
 
 function showStoreModal(){
@@ -444,157 +601,55 @@ function showStoreModal(){
     showToast('Crea una cuenta para visitar la tienda 🛍️');
     return;
   }
-  const u=getUserRecord(currentUser.id);
-  ensureUserDefaults(u);
+  renderStoreContent();
+  document.getElementById('storeModal').classList.add('active');
+}
+
+function renderStoreContent(){
+  if(!currentUser||!currentUserData)return;
   const content=document.getElementById('storeContent');
-  content.innerHTML=`<div class="postibits-badge" style="margin:0 auto 1rem;width:fit-content">🥧 Tienes ${u.postibits} Postibits</div><div class="mascot-grid" id="mascotGrid"></div><div class="buy-postibits-row"><button class="btn btn-primary" disabled>💳 Comprar Postibits (próximamente)</button></div>`;
+  content.innerHTML=`<div class="postibits-badge" style="margin:0 auto 1rem;width:fit-content">🥧 Tienes ${currentUserData.postibits} Postibits</div><div class="mascot-grid" id="mascotGrid"></div><div class="buy-postibits-row"><button class="btn btn-primary" disabled>💳 Comprar Postibits (próximamente)</button></div>`;
 
   const grid=document.getElementById('mascotGrid');
   Object.entries(MASCOTS).forEach(([id,m])=>{
-    const owned=u.ownedMascots.includes(id);
-    const equipped=u.equippedMascot===id;
+    const owned=(currentUserData.ownedMascots||[]).includes(id);
+    const equipped=currentUserData.equippedMascot===id;
     const card=document.createElement('div');
     card.className='mascot-card'+(owned?' owned':'')+(equipped?' equipped':'');
     card.innerHTML=`<div class="mascot-svg">${m.svg}</div><div class="mascot-name">${m.name}</div><div class="mascot-desc">${m.desc}</div><div class="mascot-price">${m.price===0?'Gratis':'🥧 '+m.price}</div>`;
     const btn=document.createElement('button');
-    btn.className='mascot-btn '+(equipped?'equipped-label':owned?'equip':(u.postibits<m.price?'locked':'buy'));
+    btn.className='mascot-btn '+(equipped?'equipped-label':owned?'equip':(currentUserData.postibits<m.price?'locked':'buy'));
     btn.textContent=equipped?'✓ Equipada':owned?'Equipar':'Comprar';
     btn.disabled=equipped;
     btn.onclick=()=>owned?equipMascot(id):buyMascot(id);
     card.appendChild(btn);
     grid.appendChild(card);
   });
-
-  document.getElementById('storeModal').classList.add('active');
 }
 
 async function buyMascot(id){
-  const u=getUserRecord(currentUser.id);
-  ensureUserDefaults(u);
   const m=MASCOTS[id];
-  if(u.postibits<m.price){
+  if(currentUserData.postibits<m.price){
     showToast('No tienes suficientes Postibits 🥲');
     return;
   }
-  u.postibits-=m.price;
-  u.ownedMascots.push(id);
-  u.equippedMascot=id;
-  await saveData();
-  updatePostibitsBadge();
-  updateWriterMascot();
-  showToast(`¡${m.name} ahora vive contigo! 🎉`);
-  showStoreModal();
+  try{
+    await updateDoc(doc(db,'users',currentUser.id),{
+      postibits:increment(-m.price),
+      ownedMascots:arrayUnion(id),
+      equippedMascot:id
+    });
+    showToast(`¡${m.name} ahora vive contigo! 🎉`);
+  }catch(e){
+    console.error('buyMascot error',e);
+    showToast('No se pudo completar la compra 🥲');
+  }
 }
 
 async function equipMascot(id){
-  const u=getUserRecord(currentUser.id);
-  u.equippedMascot=id;
-  await saveData();
-  updateWriterMascot();
-  showStoreModal();
-}
-
-function updateProfileButton(){
-  const btn=document.getElementById('profileBtn');
-  if(currentUser){
-    btn.textContent='👤 '+currentUser.username;
-  }else{
-    btn.textContent='👤 Entrar';
-  }
-}
-
-function showProfileModal(){
-  const modal=document.getElementById('authModal');
-  const content=document.getElementById('authContent');
-
-  if(currentUser){
-    // Usuario logueado - mostrar dashboard
-    const u=getUserRecord(currentUser.id);
-    ensureUserDefaults(u);
-    content.innerHTML=`
-      <div style="margin:1rem 0;text-align:center">
-        <p style="color:var(--text);margin-bottom:.8rem">Hola, <strong>${currentUser.username}</strong> 💛</p>
-        <div class="postibits-badge" style="margin:0 auto;width:fit-content">🥧 ${u.postibits} Postibits</div>
-        <p class="streak-note">Racha de login: ${u.loginStreak} día${u.loginStreak===1?'':'s'} · cada 7 días ganas +5 🥧</p>
-        <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%;margin-bottom:.5rem">🛍️ Ir a la tienda</button>
-        <button onclick="logout()" class="btn btn-secondary" style="width:100%">Salir</button>
-      </div>
-    `;
-  }else{
-    // No logueado - mostrar login/registro
-    content.innerHTML=`
-      <form id="authForm" style="display:flex;flex-direction:column;gap:1rem;margin:1rem 0">
-        <input class="auth-input" id="authUsername" type="text" placeholder="Tu nombre de usuario" required/>
-        <input class="auth-input" id="authPassword" type="password" placeholder="Contraseña" required/>
-        <button type="submit" class="btn btn-primary" style="width:100%">${isAuthLogin?'Entrar':'Crear cuenta'}</button>
-        <div id="authError" class="auth-error"></div>
-      </form>
-      <div class="auth-toggle">
-        ${isAuthLogin?'¿Sin cuenta?':'¿Ya tienes cuenta?'} <button type="button" onclick="toggleAuthMode()">Click aquí</button>
-      </div>
-    `;
-
-    document.getElementById('authForm').onsubmit=handleAuth;
-  }
-
-  modal.classList.add('active');
-}
-
-async function handleAuth(e){
-  e.preventDefault();
-  const un=document.getElementById('authUsername').value.trim();
-  const pw=document.getElementById('authPassword').value;
-  const err=document.getElementById('authError');
-
-  if(!un||!pw){err.textContent='Completa todos los campos';err.style.display='block';return}
-
-  if(isAuthLogin){
-    const u=data.users.find(x=>x.username===un);
-    if(!u||u.password!==hashPassword(pw)){
-      err.textContent='Usuario o contraseña incorrectos';
-      err.style.display='block';
-      return;
-    }
-    ensureUserDefaults(u);
-    currentUser={id:u.id,username:u.username};
-  }else{
-    if(data.users.find(x=>x.username===un)){
-      err.textContent='Este usuario ya existe';
-      err.style.display='block';
-      return;
-    }
-    const newUser={id:Date.now().toString(),username:un,password:hashPassword(pw),postibits:STARTING_POSTIBITS,loginStreak:0,lastLoginDate:null,ownedMascots:['postiboo'],equippedMascot:'postiboo'};
-    data.users.push(newUser);
-    currentUser={id:newUser.id,username:newUser.username};
-  }
-
-  await saveData();
-  localStorage.setItem('postopia_user',JSON.stringify(currentUser));
-  updateProfileButton();
-  await processLoginStreak();
-  updatePostibitsBadge();
-  updateWriterMascot();
-  closeAuthModal();
-  renderFeed();
-}
-
-function toggleAuthMode(){
-  isAuthLogin=!isAuthLogin;
-  showProfileModal();
-}
-
-function closeAuthModal(){
-  document.getElementById('authModal').classList.remove('active');
-}
-
-function logout(){
-  localStorage.removeItem('postopia_user');
-  currentUser=null;
-  updateProfileButton();
-  updatePostibitsBadge();
-  updateWriterMascot();
-  closeAuthModal();
-  renderFeed();
+  try{
+    await updateDoc(doc(db,'users',currentUser.id),{equippedMascot:id});
+  }catch(e){console.error('equipMascot error',e)}
 }
 
 function renderMoodGrid(){
@@ -632,9 +687,10 @@ async function dropNote(){
 
   const anon=document.getElementById('anonCheck').checked;
   const respType=document.querySelector('input[name="respType"]:checked').value;
+  const dropBtn=document.getElementById('dropBtn');
+  dropBtn.disabled=true;
 
   const note={
-    id:Date.now().toString(),
     userId:currentUser?currentUser.id:null,
     mood:selectedMood,
     text:text||'…',
@@ -645,23 +701,33 @@ async function dropNote(){
     timestamp:Date.now(),
     responseType:respType,
     responses:[],
-    rot:ROTS[data.notes.length%ROTS.length]
+    rot:ROTS[Math.floor(Math.random()*ROTS.length)],
+    mascotId:getEquippedMascotId()
   };
 
-  data.notes.unshift(note);
-  await saveData();
-  closeCreateModal();
-  renderFeed();
+  try{
+    await addDoc(collection(db,'notes'),note);
+    closeCreateModal();
+  }catch(e){
+    console.error('dropNote error',e);
+    showToast('No se pudo guardar tu notita 🥲');
+  }finally{
+    dropBtn.disabled=false;
+  }
 }
 
 function renderFeed(){
   const board=document.getElementById('corkboard');
   board.innerHTML='';
 
-  let notes=data.notes;
-
+  let notes=allNotes;
   if(currentFilter!=='all'){
     notes=notes.filter(n=>n.mood===currentFilter);
+  }
+
+  if(notes.length===0){
+    board.innerHTML='<div class="empty-board">Todavía no hay notitas por aquí… ¡sé la primera! 🌈</div>';
+    return;
   }
 
   notes.forEach(n=>{
@@ -675,7 +741,9 @@ function renderFeed(){
     const text=document.createElement('p');text.className='note-text';text.textContent=n.text;
 
     const footer=document.createElement('div');footer.className='note-footer';
-    const author=document.createElement('span');author.className='note-author';author.textContent=n.author;
+    const author=document.createElement('span');author.className='note-author';
+    const mascotForNote=MASCOTS[n.mascotId]||MASCOTS.postiboo;
+    author.innerHTML=`<span class="note-mascot-icon">${mascotForNote.svg}</span>${escapeHtml(n.author)}`;
     const reactions=document.createElement('div');reactions.className='note-reactions';
 
     const responseExamples=RESPONSES_PACK[n.responseType]||RESPONSES_PACK.apoyo;
@@ -703,9 +771,18 @@ function renderFeed(){
 }
 
 function showResponseModal(note){
+  currentOpenNoteId=note.id;
   const modal=document.getElementById('responseModal');
   document.getElementById('responseTitle').textContent=`${note.emoji} ${note.author}`;
   document.getElementById('responseText').textContent=note.text;
+
+  const existingWrap=document.getElementById('existingResponses');
+  const responses=note.responses||[];
+  if(responses.length===0){
+    existingWrap.innerHTML='<p class="existing-responses-empty">Sé la primera persona en responder 💛</p>';
+  }else{
+    existingWrap.innerHTML=responses.slice().reverse().map(r=>`<div class="existing-response-item">${escapeHtml(r.text)}</div>`).join('');
+  }
 
   const options=document.getElementById('responseOptions');
   options.innerHTML='';
@@ -716,25 +793,47 @@ function showResponseModal(note){
     opt.className='response-option';
     const m=txt.match(/^\p{Emoji}/u);
     opt.innerHTML=`<strong>${m?m[0]:'💛'}</strong><small>${txt}</small>`;
-    opt.onclick=async()=>{
-      const resp={id:Date.now().toString(),userId:currentUser?currentUser.id:null,text:txt,timestamp:Date.now()};
-      const noteIdx=data.notes.findIndex(n=>n.id===note.id);
-      if(noteIdx>=0){
-        data.notes[noteIdx].responses.push(resp);
-        await saveData();
-      }
-      closeResponseModal();
-      renderFeed();
-    };
+    opt.onclick=()=>addResponseToNote(note.id,txt);
     options.appendChild(opt);
   });
 
+  document.getElementById('customResponseText').value='';
   modal.classList.add('active');
+}
+
+async function addResponseToNote(noteId,txt){
+  const resp={id:Date.now().toString(),userId:currentUser?currentUser.id:null,text:txt,timestamp:Date.now()};
+  try{
+    await updateDoc(doc(db,'notes',noteId),{responses:arrayUnion(resp)});
+    showToast('¡Tu apoyo fue enviado! 💌');
+  }catch(e){
+    console.error('addResponse error',e);
+    showToast('No se pudo enviar tu apoyo 🥲');
+  }
+  closeResponseModal();
+}
+
+async function sendCustomResponse(){
+  const ta=document.getElementById('customResponseText');
+  const txt=ta.value.trim();
+  if(!txt||!currentOpenNoteId)return;
+  const btn=document.getElementById('sendCustomResponse');
+  btn.disabled=true;
+  await addResponseToNote(currentOpenNoteId,txt);
+  ta.value='';
+  btn.disabled=false;
 }
 
 function closeResponseModal(){
   document.getElementById('responseModal').classList.remove('active');
+  currentOpenNoteId=null;
 }
+
+window.closeAuthModal=closeAuthModal;
+window.closeResponseModal=closeResponseModal;
+window.logout=logout;
+window.toggleAuthMode=toggleAuthMode;
+window.showStoreModal=showStoreModal;
 
 document.addEventListener('DOMContentLoaded',init);
 </script>
