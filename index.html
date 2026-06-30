@@ -117,6 +117,31 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .response-option strong{color:var(--text);display:block;margin-bottom:.3rem}
 .response-option small{color:var(--text-soft)}
 
+/* Postibits + Tienda */
+.postibits-badge{display:flex;align-items:center;gap:.3rem;background:var(--yellow);border:2px solid #f0d060;border-radius:50px;padding:.4rem .9rem;font-weight:800;font-size:.85rem;color:#a07820}
+.streak-note{font-size:.8rem;color:var(--text-soft);margin:.5rem 0 1rem;text-align:center}
+.mascot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin:1rem 0}
+.mascot-card{background:#f8f0ff;border:2px solid #e8d0f0;border-radius:16px;padding:1rem;text-align:center;transition:all .15s}
+.mascot-card.owned{border-color:#a8e0c0;background:#eafaf0}
+.mascot-card.equipped{border-color:#c090e0;background:var(--lavender)}
+.mascot-svg{width:64px;height:70px;margin:0 auto .4rem;display:flex;align-items:center;justify-content:center}
+.mascot-svg svg{width:100%;height:100%}
+.mascot-name{font-weight:800;color:var(--text);font-size:.85rem;margin-bottom:.15rem}
+.mascot-desc{font-size:.7rem;color:var(--text-soft);margin-bottom:.3rem;min-height:1.6em}
+.mascot-price{font-size:.78rem;color:#a07820;font-weight:700;margin-bottom:.6rem}
+.mascot-btn{width:100%;padding:.45rem;border-radius:50px;border:none;font-family:var(--font);font-weight:700;font-size:.78rem;cursor:pointer;transition:transform .15s}
+.mascot-btn:hover{transform:scale(1.04)}
+.mascot-btn.buy{background:linear-gradient(135deg,#f48fb1,#ce93d8);color:white}
+.mascot-btn.equip{background:white;color:var(--text);border:2px solid #c090e0}
+.mascot-btn.equipped-label{background:#a8e0c0;color:#1f5c3a;cursor:default}
+.mascot-btn.locked{background:#eee;color:#aaa;cursor:not-allowed}
+.buy-postibits-row{text-align:center;margin-top:1.2rem;padding-top:1rem;border-top:1px dashed #e0c8f0}
+.buy-postibits-row button{opacity:.55;cursor:not-allowed}
+
+/* Toast */
+.toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:white;border:2px solid #a8e0c0;border-radius:50px;padding:.7rem 1.5rem;font-weight:700;color:#1f5c3a;box-shadow:0 6px 24px rgba(0,0,0,.15);transition:bottom .4s cubic-bezier(.34,1.56,.64,1);z-index:300;white-space:nowrap;font-size:.9rem}
+.toast.show{bottom:2rem}
+
 /* Animations */
 @keyframes dropIn{0%{transform:translateY(-40px) rotate(var(--rot,0deg));opacity:0}100%{transform:translateY(0) rotate(var(--rot,0deg));opacity:1}}
 @keyframes popIn{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -149,6 +174,8 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
       <div class="tagline">Tu rinconcito emocional pastel.</div>
     </div>
     <div class="header-right">
+      <span class="postibits-badge" id="postibitsBadge" style="display:none">🥧 <span id="postibitsAmount">0</span></span>
+      <button class="btn btn-secondary" id="storeBtn">🛍️ Tienda</button>
       <button class="btn btn-primary" id="newNoteBtn">+ Drop it</button>
       <button class="btn btn-secondary" id="profileBtn">👤 Perfil</button>
     </div>
@@ -203,6 +230,16 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
   </div>
 </div>
 
+<!-- STORE MODAL -->
+<div class="modal-overlay" id="storeModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeStoreModal">×</button>
+    <h2 class="modal-title">🛍️ Boutique Post-itopia</h2>
+    <p style="text-align:center;color:var(--text-soft);font-size:.85rem;margin-bottom:.5rem">Viste tu rinconcito con mascotas nuevas</p>
+    <div id="storeContent"></div>
+  </div>
+</div>
+
 <!-- AUTH MODAL (para login/registro) -->
 <div class="auth-modal" id="authModal">
   <div style="position:relative">
@@ -211,6 +248,9 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
     <div id="authContent"></div>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <!-- RESPONSE MODAL -->
 <div class="response-modal" id="responseModal">
@@ -230,7 +270,18 @@ const MOOD_EMOJIS={calm:'😌',sad:'😔',overwhelmed:'😵',angry:'😡',confus
 const PROMPTS={sad:'¿Qué te apachurró el corazón hoy? 💙',calm:'Qué bien que estés tranqui… ¿qué te dio paz hoy? 🌿',overwhelmed:'Respira. Cuéntale a tu notita qué te tiene así 💜',angry:'¿Qué te hizo enojar? Aquí puedes soltarlo todo 🔴',confused:'¿Qué te tiene con la cabeza hecha bola? 🌀',lonely:'No estás sola/solo. Cuéntame qué sientes 🤍',anxious:'Respira suavito. ¿Qué te está preocupando? 🫧',grateful:'¡Qué bonito! ¿Qué te hizo sonreír hoy? ✨',motivated:'¡Eso! ¿Qué te está llenando de energía? 🔥',drained:'Está bien descansar. ¿Qué te dejó sin pilas? 🌧️',hopeful:'Se siente bien tener esperanza 🌈 ¿Qué la generó?'};
 const RESPONSES_PACK={apoyo:['🐻 Estoy contigo','☁️ Respira conmigo','🐥 Yo también pasé por eso','⭐ Lo estás haciendo bien'],consejos:['🌱 Un paso a la vez','🫧 Habla con alguien de confianza','🌸 Date un momento para ti','✨ Está bien pedir ayuda'],historias:['🫂 Una vez yo también…','💜 Pasé algo similar','🌈 Salí adelante, tú puedes','🐣 No eres la única']};
 const POSTIBOO=`<svg width="56" height="62" viewBox="0 0 56 62" xmlns="http://www.w3.org/2000/svg"><ellipse cx="8" cy="34" rx="9" ry="6" fill="#fde68a" opacity=".85"/><ellipse cx="48" cy="34" rx="9" ry="6" fill="#fde68a" opacity=".85"/><rect x="10" y="12" width="36" height="36" rx="10" fill="#fef08a"/><rect x="10" y="12" width="36" height="36" rx="10" fill="none" stroke="#fbbf24" stroke-width="1.5"/><polygon points="38,12 46,12 46,20" fill="#fde047"/><line x1="38" y1="12" x2="46" y2="20" stroke="#fbbf24" stroke-width="1"/><ellipse cx="21" cy="32" rx="4.5" ry="5" fill="white"/><ellipse cx="35" cy="32" rx="4.5" ry="5" fill="white"/><circle cx="22" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="36" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="23" cy="31" r="1" fill="white"/><circle cx="37" cy="31" r="1" fill="white"/><ellipse cx="17" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><ellipse cx="39" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><path d="M23 41 Q28 45 33 41" stroke="#a16207" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="28" y1="12" x2="28" y2="6" stroke="#fbbf24" stroke-width="1.5"/><circle cx="28" cy="5" r="2.5" fill="#f472b6"/></svg>`;
+const GATITOBOO=`<svg width="56" height="62" viewBox="0 0 56 62" xmlns="http://www.w3.org/2000/svg"><polygon points="14,14 6,2 20,10" fill="#f4a8c0"/><polygon points="42,14 50,2 36,10" fill="#f4a8c0"/><rect x="10" y="12" width="36" height="36" rx="10" fill="#ffd9e8"/><rect x="10" y="12" width="36" height="36" rx="10" fill="none" stroke="#e88aa8" stroke-width="1.5"/><polygon points="38,12 46,12 46,20" fill="#f8c0d8"/><line x1="38" y1="12" x2="46" y2="20" stroke="#e88aa8" stroke-width="1"/><ellipse cx="21" cy="32" rx="4.5" ry="5" fill="white"/><ellipse cx="35" cy="32" rx="4.5" ry="5" fill="white"/><circle cx="22" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="36" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="23" cy="31" r="1" fill="white"/><circle cx="37" cy="31" r="1" fill="white"/><ellipse cx="17" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><ellipse cx="39" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><path d="M23 41 Q28 44 33 41" stroke="#a16285" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="8" y1="36" x2="1" y2="34" stroke="#e88aa8" stroke-width="1"/><line x1="8" y1="40" x2="1" y2="41" stroke="#e88aa8" stroke-width="1"/><line x1="48" y1="36" x2="55" y2="34" stroke="#e88aa8" stroke-width="1"/><line x1="48" y1="40" x2="55" y2="41" stroke="#e88aa8" stroke-width="1"/></svg>`;
+const OSITOBOO=`<svg width="56" height="62" viewBox="0 0 56 62" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="10" r="7" fill="#f0c090"/><circle cx="44" cy="10" r="7" fill="#f0c090"/><circle cx="12" cy="10" r="3.5" fill="#fad9b8"/><circle cx="44" cy="10" r="3.5" fill="#fad9b8"/><rect x="10" y="12" width="36" height="36" rx="10" fill="#ffe0c2"/><rect x="10" y="12" width="36" height="36" rx="10" fill="none" stroke="#d9a86a" stroke-width="1.5"/><polygon points="38,12 46,12 46,20" fill="#f8d0a0"/><line x1="38" y1="12" x2="46" y2="20" stroke="#d9a86a" stroke-width="1"/><ellipse cx="21" cy="32" rx="4.5" ry="5" fill="white"/><ellipse cx="35" cy="32" rx="4.5" ry="5" fill="white"/><circle cx="22" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="36" cy="32" r="2.5" fill="#3b2a4a"/><circle cx="23" cy="31" r="1" fill="white"/><circle cx="37" cy="31" r="1" fill="white"/><ellipse cx="17" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><ellipse cx="39" cy="38" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><ellipse cx="28" cy="38" rx="3" ry="2.5" fill="#d9a86a"/><path d="M23 41 Q28 45 33 41" stroke="#a17840" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`;
+const CONEJOBOO=`<svg width="56" height="64" viewBox="0 0 56 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="16" cy="6" rx="5" ry="13" fill="#d4b8f0"/><ellipse cx="40" cy="6" rx="5" ry="13" fill="#d4b8f0"/><ellipse cx="16" cy="7" rx="2.3" ry="9" fill="#f0deff"/><ellipse cx="40" cy="7" rx="2.3" ry="9" fill="#f0deff"/><rect x="10" y="14" width="36" height="36" rx="10" fill="#e6d9f8"/><rect x="10" y="14" width="36" height="36" rx="10" fill="none" stroke="#b890e0" stroke-width="1.5"/><polygon points="38,14 46,14 46,22" fill="#dcc8f4"/><line x1="38" y1="14" x2="46" y2="22" stroke="#b890e0" stroke-width="1"/><ellipse cx="21" cy="34" rx="4.5" ry="5" fill="white"/><ellipse cx="35" cy="34" rx="4.5" ry="5" fill="white"/><circle cx="22" cy="34" r="2.5" fill="#3b2a4a"/><circle cx="36" cy="34" r="2.5" fill="#3b2a4a"/><circle cx="23" cy="33" r="1" fill="white"/><circle cx="37" cy="33" r="1" fill="white"/><ellipse cx="17" cy="40" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><ellipse cx="39" cy="40" rx="4" ry="2.5" fill="#fda4af" opacity=".6"/><path d="M23 43 Q28 47 33 43" stroke="#8a60b0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`;
 const ROTS=[-3,-1.5,0,1.5,2.5,-2,1,-1,3,-2.5];
+
+const MASCOTS={
+  postiboo:{name:'Posti-boo',price:0,svg:POSTIBOO,desc:'La mascota oficial 💛'},
+  gatito:{name:'Gatito-boo',price:40,svg:GATITOBOO,desc:'Curioso y juguetón 🐱'},
+  osito:{name:'Osito-boo',price:60,svg:OSITOBOO,desc:'Abrazos garantizados 🐻'},
+  conejo:{name:'Conejo-boo',price:90,svg:CONEJOBOO,desc:'Saltitos de esperanza 🐰'}
+};
+const STARTING_POSTIBITS=20;
 
 let data={users:[],notes:[]};
 let currentUser=null;
@@ -274,6 +325,11 @@ async function init(){
   };
 
   document.getElementById('profileBtn').onclick=showProfileModal;
+  document.getElementById('storeBtn').onclick=showStoreModal;
+  document.getElementById('closeStoreModal').onclick=()=>document.getElementById('storeModal').classList.remove('active');
+  document.getElementById('storeModal').onclick=(e)=>{
+    if(e.target===document.getElementById('storeModal'))document.getElementById('storeModal').classList.remove('active');
+  };
 
   document.getElementById('noteText').oninput=function(){document.getElementById('charCount').textContent=this.value.length};
   document.getElementById('dropBtn').onclick=dropNote;
@@ -287,16 +343,155 @@ async function init(){
     };
   });
 
-  checkSession();
+  await checkSession();
   renderFeed();
 }
 
-function checkSession(){
+async function checkSession(){
   const u=localStorage.getItem('postopia_user');
   if(u){
     currentUser=JSON.parse(u);
+    const rec=getUserRecord(currentUser.id);
+    if(rec){
+      ensureUserDefaults(rec);
+      const result=await processLoginStreak();
+      if(result&&result.awarded>0){
+        showToast(`¡Racha de ${result.streak} días! +${result.awarded} 🥧`);
+      }
+    }else{
+      currentUser=null;
+      localStorage.removeItem('postopia_user');
+    }
     updateProfileButton();
+    updatePostibitsBadge();
+    updateWriterMascot();
   }
+}
+
+function getUserRecord(id){
+  return data.users.find(u=>u.id===id);
+}
+
+function ensureUserDefaults(u){
+  if(u.postibits===undefined)u.postibits=STARTING_POSTIBITS;
+  if(u.loginStreak===undefined)u.loginStreak=0;
+  if(u.lastLoginDate===undefined)u.lastLoginDate=null;
+  if(!u.ownedMascots)u.ownedMascots=['postiboo'];
+  if(!u.equippedMascot)u.equippedMascot='postiboo';
+  return u;
+}
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+async function processLoginStreak(){
+  if(!currentUser)return null;
+  const u=getUserRecord(currentUser.id);
+  if(!u)return null;
+  ensureUserDefaults(u);
+  const today=todayStr();
+  if(u.lastLoginDate===today)return null;
+
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  u.loginStreak=(u.lastLoginDate===yesterday)?u.loginStreak+1:1;
+  u.lastLoginDate=today;
+
+  let awarded=0;
+  if(u.loginStreak%7===0){
+    u.postibits+=5;
+    awarded=5;
+  }
+  await saveData();
+  return{streak:u.loginStreak,awarded};
+}
+
+function updatePostibitsBadge(){
+  const badge=document.getElementById('postibitsBadge');
+  const amt=document.getElementById('postibitsAmount');
+  if(currentUser){
+    const u=getUserRecord(currentUser.id);
+    if(u){
+      ensureUserDefaults(u);
+      amt.textContent=u.postibits;
+      badge.style.display='flex';
+      return;
+    }
+  }
+  badge.style.display='none';
+}
+
+function updateWriterMascot(){
+  const writer=document.getElementById('postibooWriter');
+  let svg=POSTIBOO;
+  if(currentUser){
+    const u=getUserRecord(currentUser.id);
+    if(u&&u.equippedMascot&&MASCOTS[u.equippedMascot])svg=MASCOTS[u.equippedMascot].svg;
+  }
+  writer.innerHTML=svg;
+}
+
+function showToast(msg){
+  const toast=document.getElementById('toast');
+  toast.textContent=msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3000);
+}
+
+function showStoreModal(){
+  if(!currentUser){
+    showProfileModal();
+    showToast('Crea una cuenta para visitar la tienda 🛍️');
+    return;
+  }
+  const u=getUserRecord(currentUser.id);
+  ensureUserDefaults(u);
+  const content=document.getElementById('storeContent');
+  content.innerHTML=`<div class="postibits-badge" style="margin:0 auto 1rem;width:fit-content">🥧 Tienes ${u.postibits} Postibits</div><div class="mascot-grid" id="mascotGrid"></div><div class="buy-postibits-row"><button class="btn btn-primary" disabled>💳 Comprar Postibits (próximamente)</button></div>`;
+
+  const grid=document.getElementById('mascotGrid');
+  Object.entries(MASCOTS).forEach(([id,m])=>{
+    const owned=u.ownedMascots.includes(id);
+    const equipped=u.equippedMascot===id;
+    const card=document.createElement('div');
+    card.className='mascot-card'+(owned?' owned':'')+(equipped?' equipped':'');
+    card.innerHTML=`<div class="mascot-svg">${m.svg}</div><div class="mascot-name">${m.name}</div><div class="mascot-desc">${m.desc}</div><div class="mascot-price">${m.price===0?'Gratis':'🥧 '+m.price}</div>`;
+    const btn=document.createElement('button');
+    btn.className='mascot-btn '+(equipped?'equipped-label':owned?'equip':(u.postibits<m.price?'locked':'buy'));
+    btn.textContent=equipped?'✓ Equipada':owned?'Equipar':'Comprar';
+    btn.disabled=equipped;
+    btn.onclick=()=>owned?equipMascot(id):buyMascot(id);
+    card.appendChild(btn);
+    grid.appendChild(card);
+  });
+
+  document.getElementById('storeModal').classList.add('active');
+}
+
+async function buyMascot(id){
+  const u=getUserRecord(currentUser.id);
+  ensureUserDefaults(u);
+  const m=MASCOTS[id];
+  if(u.postibits<m.price){
+    showToast('No tienes suficientes Postibits 🥲');
+    return;
+  }
+  u.postibits-=m.price;
+  u.ownedMascots.push(id);
+  u.equippedMascot=id;
+  await saveData();
+  updatePostibitsBadge();
+  updateWriterMascot();
+  showToast(`¡${m.name} ahora vive contigo! 🎉`);
+  showStoreModal();
+}
+
+async function equipMascot(id){
+  const u=getUserRecord(currentUser.id);
+  u.equippedMascot=id;
+  await saveData();
+  updateWriterMascot();
+  showStoreModal();
 }
 
 function updateProfileButton(){
@@ -314,10 +509,15 @@ function showProfileModal(){
 
   if(currentUser){
     // Usuario logueado - mostrar dashboard
+    const u=getUserRecord(currentUser.id);
+    ensureUserDefaults(u);
     content.innerHTML=`
-      <div style="margin:1rem 0">
-        <p style="color:var(--text);margin-bottom:1rem">Hola, <strong>${currentUser.username}</strong></p>
-        <button onclick="logout()" class="btn btn-secondary" style="width:100%;margin-top:1rem">Salir</button>
+      <div style="margin:1rem 0;text-align:center">
+        <p style="color:var(--text);margin-bottom:.8rem">Hola, <strong>${currentUser.username}</strong> 💛</p>
+        <div class="postibits-badge" style="margin:0 auto;width:fit-content">🥧 ${u.postibits} Postibits</div>
+        <p class="streak-note">Racha de login: ${u.loginStreak} día${u.loginStreak===1?'':'s'} · cada 7 días ganas +5 🥧</p>
+        <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%;margin-bottom:.5rem">🛍️ Ir a la tienda</button>
+        <button onclick="logout()" class="btn btn-secondary" style="width:100%">Salir</button>
       </div>
     `;
   }else{
@@ -355,6 +555,7 @@ async function handleAuth(e){
       err.style.display='block';
       return;
     }
+    ensureUserDefaults(u);
     currentUser={id:u.id,username:u.username};
   }else{
     if(data.users.find(x=>x.username===un)){
@@ -362,14 +563,17 @@ async function handleAuth(e){
       err.style.display='block';
       return;
     }
-    const newUser={id:Date.now().toString(),username:un,password:hashPassword(pw)};
+    const newUser={id:Date.now().toString(),username:un,password:hashPassword(pw),postibits:STARTING_POSTIBITS,loginStreak:0,lastLoginDate:null,ownedMascots:['postiboo'],equippedMascot:'postiboo'};
     data.users.push(newUser);
-    await saveData();
     currentUser={id:newUser.id,username:newUser.username};
   }
 
+  await saveData();
   localStorage.setItem('postopia_user',JSON.stringify(currentUser));
   updateProfileButton();
+  await processLoginStreak();
+  updatePostibitsBadge();
+  updateWriterMascot();
   closeAuthModal();
   renderFeed();
 }
@@ -387,6 +591,8 @@ function logout(){
   localStorage.removeItem('postopia_user');
   currentUser=null;
   updateProfileButton();
+  updatePostibitsBadge();
+  updateWriterMascot();
   closeAuthModal();
   renderFeed();
 }
