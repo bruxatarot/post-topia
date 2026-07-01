@@ -172,6 +172,14 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .buy-postibits-row{text-align:center;margin-top:1.2rem;padding-top:1rem;border-top:1px dashed #e0c8f0}
 .buy-postibits-row button{opacity:.55;cursor:not-allowed}
 
+/* Welcome modal */
+#welcomeModal{z-index:500}
+.welcome-card{max-width:480px;text-align:center}
+.welcome-mascot{width:64px;height:70px;margin:0 auto .5rem}
+.welcome-text{font-size:.88rem;color:var(--text);line-height:1.6;margin-bottom:.8rem;text-align:left}
+.welcome-dontshow{justify-content:center;margin:1rem 0}
+.welcome-btn{width:100%}
+
 /* Toast */
 .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:white;border:2px solid #a8e0c0;border-radius:50px;padding:.7rem 1.5rem;font-weight:700;color:#1f5c3a;box-shadow:0 6px 24px rgba(0,0,0,.15);transition:bottom .4s cubic-bezier(.34,1.56,.64,1);z-index:300;white-space:nowrap;font-size:.9rem}
 .toast.show{bottom:2rem}
@@ -275,6 +283,19 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 </head>
 <body>
 
+<!-- WELCOME MODAL -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal-card welcome-card">
+    <div class="welcome-mascot" id="welcomeMascot"></div>
+    <h2 class="modal-title">🌈 Bienvenido a Post‑itopia</h2>
+    <p class="welcome-text">Una página donde puedes descargar tu estado emocional, escribir cómo te sientes en una notita pastel y dejar que la comunidad te acompañe con palabras suaves, stickers kawaii y apoyo emocional.</p>
+    <p class="welcome-text">Aquí puedes conectar con otras personas que están pasando por algo similar, algo completamente diferente, o algo que tú ya viviste… y donde tu experiencia puede ayudar a alguien más.</p>
+    <p class="welcome-text">Post‑itopia es un espacio seguro, cute y chibi, creado para acompañarte, escucharte y recordarte que tus emociones también merecen un lugar suavecito.</p>
+    <label class="anon-toggle welcome-dontshow"><input type="checkbox" id="welcomeDontShow"/> No volver a mostrar esto</label>
+    <button class="btn-drop welcome-btn" id="welcomeCloseBtn">Entendido 💛</button>
+  </div>
+</div>
+
 <!-- MAIN SCREEN -->
 <div class="screen active" id="mainScreen">
   <!-- Header -->
@@ -361,7 +382,7 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 <div class="modal-overlay" id="storeModal">
   <div class="modal-card">
     <button class="modal-close" id="closeStoreModal">×</button>
-    <h2 class="modal-title">🛍️ Boutique Post-itopia</h2>
+    <h2 class="modal-title">🛍️ Post-itienda</h2>
     <p style="text-align:center;color:var(--text-soft);font-size:.85rem;margin-bottom:.5rem">Viste tu rinconcito con mascotas nuevas</p>
     <div id="storeContent"></div>
   </div>
@@ -384,7 +405,12 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 <div class="response-modal" id="responseModal">
   <button class="modal-close" onclick="closeResponseModal()">×</button>
   <h3 id="responseTitle" style="margin-bottom:1rem;color:var(--text);font-size:1.1rem"></h3>
-  <p id="responseText" style="margin-bottom:1.5rem;color:var(--text);line-height:1.6"></p>
+  <p id="responseText" style="margin-bottom:1rem;color:var(--text);line-height:1.6"></p>
+  <div id="adminControls" class="admin-controls" style="display:none">
+    <span class="admin-tag">🛡️ Admin</span>
+    <button id="adminDeleteNoteBtn" class="admin-btn admin-btn-delete">🗑️ Eliminar notita</button>
+    <button id="adminBanAuthorBtn" class="admin-btn admin-btn-ban">🚫 Restringir cuenta</button>
+  </div>
   <p class="section-label" style="margin-top:0">💬 Respuestas de la comunidad</p>
   <div id="existingResponses" class="existing-responses"></div>
   <p class="section-label">Respuestas rápidas</p>
@@ -633,6 +659,8 @@ function initLocalMode(){
     lastLoginDate:todayStr(),
     ownedMascots:['postiboo'],
     equippedMascot:'postiboo',
+    ownedSkins:['clasica'],
+    equippedSkin:'clasica',
     supportDate:null,
     supportCountToday:0
   };
@@ -708,7 +736,7 @@ async function handleAuthStateChange(user){
       listenToUserDoc(user.uid);
       const result=await processLoginStreak();
       if(result&&result.awarded>0){
-        showToast(`¡Racha de ${result.streak} días! +${result.awarded} 🥧`);
+        showToast(`¡Racha de ${result.streak} días! +${result.awarded} PostiBits`);
       }
     }catch(e){console.error('auth state change error',e)}
   }else{
@@ -791,9 +819,9 @@ function renderProfileContent(){
       <div style="margin:1rem 0;text-align:center">
         <div class="profile-avatar">${mascot.svg}</div>
         <p style="color:var(--text);margin-bottom:.3rem">Hola, <strong>${escapeHtml(currentUser.username)}</strong> 💛</p>
-        <div class="postibits-badge" style="margin:0 auto;width:fit-content">🥧 ${currentUserData.postibits} Postibits</div>
-        <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 🥧</p>
-        <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%">🛍️ Cambiar mascota / Tienda</button>
+        <div class="postibits-badge" style="margin:0 auto;width:fit-content">${currentUserData.postibits} PostiBits</div>
+        <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 PostiBits</p>
+        <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%">🛍️ Cambiar mascota / Post-itienda</button>
       </div>
 
       <div class="profile-section">
@@ -827,6 +855,12 @@ function renderProfileContent(){
       <form id="authForm" style="display:flex;flex-direction:column;gap:1rem;margin:1rem 0">
         <input class="auth-input" id="authUsername" type="text" placeholder="Tu nombre de usuario" required/>
         <input class="auth-input" id="authPassword" type="password" placeholder="Contraseña (mínimo 6 caracteres)" required minlength="6"/>
+        ${isAuthLogin?'':`
+        <div class="terms-box">
+          <p class="terms-title">📜 Reglas de la comunidad</p>
+          <p class="terms-text">Al crear tu cuenta aceptas: no insultar ni acosar a nadie, no publicar contenido obsceno, violento o sexual, no compartir datos personales de otras personas, y tratar cada notita con respeto y cariño 💛. El equipo puede eliminar notitas o restringir cuentas que rompan estas reglas.</p>
+          <label class="anon-toggle"><input type="checkbox" id="acceptTerms" required/> Acepto las reglas de la comunidad</label>
+        </div>`}
         <button type="submit" class="btn btn-primary" style="width:100%">${isAuthLogin?'Entrar':'Crear cuenta'}</button>
         <div id="authError" class="auth-error"></div>
       </form>
@@ -940,6 +974,10 @@ async function handleAuth(e){
 
   if(!un||!pw){err.textContent='Completa todos los campos';err.style.display='block';return}
   if(pw.length<6){err.textContent='La contraseña debe tener al menos 6 caracteres';err.style.display='block';return}
+  if(!isAuthLogin){
+    const acceptEl=document.getElementById('acceptTerms');
+    if(!acceptEl||!acceptEl.checked){err.textContent='Debes aceptar las reglas de la comunidad para crear tu cuenta';err.style.display='block';return}
+  }
 
   const email=usernameToEmail(un);
   if(!email){err.textContent='Usa al menos una letra o número en tu nombre de usuario';err.style.display='block';return}
@@ -958,7 +996,12 @@ async function handleAuth(e){
         loginStreak:0,
         lastLoginDate:null,
         ownedMascots:['postiboo'],
-        equippedMascot:'postiboo'
+        equippedMascot:'postiboo',
+        ownedSkins:['clasica'],
+        equippedSkin:'clasica',
+        isAdmin:false,
+        isBanned:false,
+        acceptedTermsAt:Date.now()
       });
     }
     closeAuthModal();
@@ -1158,6 +1201,10 @@ function closeCreateModal(){
 }
 
 async function dropNote(){
+  if(currentUserData&&currentUserData.isBanned){
+    showToast('Tu cuenta está restringida por incumplir las reglas de la comunidad 🚫');
+    return;
+  }
   const text=document.getElementById('noteText').value.trim();
   if(!selectedMood){showToast('Elige un mood primero 💛');return}
 
@@ -1358,6 +1405,10 @@ function showResponseModal(note){
 }
 
 async function addResponseToNote(noteId,txt){
+  if(currentUserData&&currentUserData.isBanned){
+    showToast('Tu cuenta está restringida por incumplir las reglas de la comunidad 🚫');
+    return;
+  }
   const resp={id:Date.now().toString(),userId:currentUser?currentUser.id:null,text:txt,timestamp:Date.now()};
 
   if(localMode){
