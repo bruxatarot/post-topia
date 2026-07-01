@@ -421,7 +421,7 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
   <h3 id="responseTitle" style="margin-bottom:1rem;color:var(--text);font-size:1.1rem"></h3>
   <p id="responseText" style="margin-bottom:1rem;color:var(--text);line-height:1.6"></p>
   <div id="adminControls" class="admin-controls" style="display:none">
-    <span class="admin-tag">🛡️ Admin</span>
+    <span class="admin-tag" id="adminRoleTag">🛡️ Admin</span>
     <button id="adminDeleteNoteBtn" class="admin-btn admin-btn-delete">🗑️ Eliminar notita</button>
     <button id="adminBanAuthorBtn" class="admin-btn admin-btn-ban">🚫 Restringir cuenta</button>
   </div>
@@ -1398,9 +1398,12 @@ function showResponseModal(note){
   document.getElementById('responseText').textContent=note.text;
 
   const adminBox=document.getElementById('adminControls');
-  if(currentUserData&&currentUserData.isAdmin){
+  const canModerate=currentUserData&&(currentUserData.isAdmin||currentUserData.isModerator);
+  const canBan=currentUserData&&currentUserData.isAdmin;
+  if(canModerate){
     adminBox.style.display='flex';
-    document.getElementById('adminBanAuthorBtn').style.display=note.userId?'inline-flex':'none';
+    document.getElementById('adminRoleTag').textContent=canBan?'🛡️ Admin':'🧹 Moderador';
+    document.getElementById('adminBanAuthorBtn').style.display=(canBan&&note.userId)?'inline-flex':'none';
   }else{
     adminBox.style.display='none';
   }
