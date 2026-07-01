@@ -646,8 +646,25 @@ async function init(){
   document.getElementById('adminDeleteNoteBtn').onclick=adminDeleteNote;
   document.getElementById('adminBanAuthorBtn').onclick=adminBanAuthor;
 
+  const WELCOME_KEY='postitopia_hide_welcome';
+  const welcomeModal=document.getElementById('welcomeModal');
+  document.getElementById('welcomeMascot').innerHTML=MASCOTS.postiboo.svg;
+  let hideWelcome=false;
+  try{hideWelcome=localStorage.getItem(WELCOME_KEY)==='1'}catch(e){}
+  if(!hideWelcome)welcomeModal.classList.add('active');
+  document.getElementById('welcomeCloseBtn').onclick=()=>{
+    if(document.getElementById('welcomeDontShow').checked){
+      try{localStorage.setItem(WELCOME_KEY,'1')}catch(e){}
+    }
+    welcomeModal.classList.remove('active');
+  };
+  welcomeModal.onclick=(e)=>{
+    if(e.target===welcomeModal)welcomeModal.classList.remove('active');
+  };
+
   document.addEventListener('keydown',(e)=>{
     if(e.key!=='Escape')return;
+    if(welcomeModal.classList.contains('active')){welcomeModal.classList.remove('active');return}
     if(document.getElementById('hugOverlay').classList.contains('active')){document.getElementById('hugOverlay').classList.remove('active');return}
     if(document.getElementById('createNoteModal').classList.contains('active')){closeCreateModal();return}
     if(document.getElementById('storeModal').classList.contains('active')){document.getElementById('storeModal').classList.remove('active');return}
@@ -1510,7 +1527,8 @@ function closeResponseModal(){
 }
 
 async function adminDeleteNote(){
-  if(!currentUserData||!currentUserData.isAdmin||!currentOpenNoteId)return;
+  const canModerate=currentUserData&&(currentUserData.isAdmin||currentUserData.isModerator);
+  if(!canModerate||!currentOpenNoteId)return;
   if(!confirm('¿Eliminar esta notita permanentemente?'))return;
 
   if(localMode){
