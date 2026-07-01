@@ -160,6 +160,8 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 /* Postibits + Tienda */
 .postibits-badge{display:flex;align-items:center;gap:.3rem;background:var(--yellow);border:2px solid #f0d060;border-radius:50px;padding:.4rem .9rem;font-weight:800;font-size:.85rem;color:#a07820}
 .streak-note{font-size:.8rem;color:var(--text-soft);margin:.5rem 0 1rem;text-align:center}
+.petshop-banner{background:linear-gradient(135deg,#fde68a,#fca5cd 60%,#c4b5fd);border-radius:16px;padding:.9rem 1rem;text-align:center;font-weight:800;color:#5a3a1a;font-size:1.05rem;margin-bottom:1rem;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
+.petshop-banner span{display:block;font-weight:600;font-size:.72rem;color:#6a4a2a;margin-top:.15rem}
 .mascot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin:1rem 0}
 .mascot-card{background:#f8f0ff;border:2px solid #e8d0f0;border-radius:16px;padding:1rem;text-align:center;transition:all .15s}
 .mascot-card.owned{border-color:#a8e0c0;background:#eafaf0}
@@ -173,6 +175,38 @@ body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100
 .mascot-btn:hover{transform:scale(1.04)}
 .mascot-btn.buy{background:linear-gradient(135deg,#f48fb1,#ce93d8);color:white}
 .mascot-btn.equip{background:white;color:var(--text);border:2px solid #c090e0}
+
+/* Habitat scenes for Posti-mascotas pet shop */
+.habitat-card{overflow:hidden}
+.habitat-scene{position:relative;width:100%;height:84px;border-radius:12px;margin-bottom:.5rem;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.habitat-scene .mascot-svg{position:relative;z-index:2;margin-bottom:4px;transition:transform .25s}
+.habitat-card:hover .mascot-svg{transform:translateY(-4px) rotate(-3deg)}
+
+.habitat-postiboo .habitat-scene{background:linear-gradient(180deg,#fdf6e3 0%,#e8c78a 100%)}
+.habitat-postiboo .habitat-scene::before{content:'';position:absolute;inset:6px 4px 4px;border:3px solid #b8823f;border-radius:6px;background:repeating-linear-gradient(0deg,transparent 0 8px,rgba(184,130,63,.25) 8px 9px),repeating-linear-gradient(90deg,transparent 0 14px,rgba(184,130,63,.2) 14px 15px)}
+
+.habitat-gatito .habitat-scene{background:radial-gradient(ellipse at bottom,#ffd9e8 0%,#fff0f6 70%)}
+.habitat-gatito .habitat-scene::before{content:'';position:absolute;bottom:0;left:8%;right:8%;height:36px;border-radius:50% 50% 20% 20%/60% 60% 20% 20%;background:repeating-linear-gradient(45deg,#f4a8c0 0 6px,#f8c4d8 6px 12px);box-shadow:inset 0 4px 6px rgba(0,0,0,.08)}
+
+.habitat-osito .habitat-scene{background:radial-gradient(ellipse at 50% 100%,#4a3220 0%,#7a5a3a 55%,#c9a06a 100%)}
+.habitat-osito .habitat-scene::before{content:'';position:absolute;top:-10px;left:15%;right:15%;height:60px;border-radius:0 0 50% 50%/0 0 70% 70%;background:#2e1f14}
+
+.habitat-conejo .habitat-scene{background:linear-gradient(180deg,#f2fbe8 0%,#dff0c8 100%)}
+.habitat-conejo .habitat-scene::before{content:'';position:absolute;inset:8px;border-radius:8px;background-image:repeating-linear-gradient(0deg,#a8c890 0 2px,transparent 2px 12px),repeating-linear-gradient(90deg,#a8c890 0 2px,transparent 2px 12px);opacity:.55}
+.habitat-conejo .habitat-scene::after{content:'🌾';position:absolute;bottom:2px;left:6px;font-size:1rem;opacity:.8}
+
+.habitat-abeja .habitat-scene{background:linear-gradient(180deg,#fff4cf 0%,#ffe08a 100%)}
+.habitat-abeja .habitat-scene::before{content:'';position:absolute;inset:0;opacity:.55;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='24'%3E%3Cpolygon points='7,0 21,0 28,12 21,24 7,24 0,12' fill='none' stroke='%23e0a800' stroke-width='1.5'/%3E%3C/svg%3E");background-size:28px 24px}
+.habitat-abeja .habitat-scene::after{content:'🍯';position:absolute;bottom:2px;right:6px;font-size:1rem}
+
+.habitat-oveja .habitat-scene{background:linear-gradient(180deg,#cdeeff 0%,#a8e6c0 65%,#8fd4a8 100%)}
+.habitat-oveja .habitat-scene::before{content:'';position:absolute;bottom:0;left:0;right:0;height:22px;background-image:repeating-linear-gradient(90deg,#e8e0c8 0 3px,transparent 3px 16px);opacity:.8}
+.habitat-oveja .habitat-scene::after{content:'☁️';position:absolute;top:4px;right:8px;font-size:.9rem;opacity:.85}
+
+.habitat-mariposa .habitat-scene{background:linear-gradient(180deg,#eafaf0 0%,#d4f0dc 100%)}
+.habitat-mariposa .habitat-scene::before{content:'🌸';position:absolute;bottom:2px;left:6px;font-size:1rem}
+.habitat-mariposa .habitat-scene::after{content:'🌼';position:absolute;bottom:2px;right:6px;font-size:1rem}
+
 .mascot-btn.equipped-label{background:#a8e0c0;color:#1f5c3a;cursor:default}
 .mascot-btn.locked{background:#eee;color:#aaa;cursor:not-allowed}
 .buy-postibits-row{text-align:center;margin-top:1.2rem;padding-top:1rem;border-top:1px dashed #e0c8f0}
@@ -1009,7 +1043,9 @@ function getEquippedSkinId(){
 
 function updateProfileButton(){
   const btn=document.getElementById('profileBtn');
-  btn.textContent=currentUser?'👤 '+currentUser.username:'👤 Entrar';
+  if(!currentUser){btn.textContent='👤 Entrar';return}
+  const badge=(currentUserData&&currentUserData.isAdmin)?'👑 ':(currentUserData&&currentUserData.isModerator)?'🧹 ':'👤 ';
+  btn.textContent=badge+currentUser.username;
 }
 
 function showProfileModal(){
@@ -1027,7 +1063,7 @@ function renderProfileContent(){
     content.innerHTML=`
       <div style="margin:1rem 0;text-align:center">
         <div class="profile-avatar">${avatarSvg}</div>
-        <p style="color:var(--text);margin-bottom:.3rem">Hola, <strong>${escapeHtml(currentUser.username)}</strong> 💛</p>
+        <p style="color:var(--text);margin-bottom:.3rem">Hola, <strong>${currentUserData.isAdmin?'👑 ':currentUserData.isModerator?'🧹 ':''}${escapeHtml(currentUser.username)}</strong> 💛</p>
         <div class="postibits-badge" style="margin:0 auto;width:fit-content">${currentUserData.postibits} PostiBits</div>
         <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 PostiBits</p>
         <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%">🛍️ Cambiar mascota / Post-itienda</button>
@@ -1257,7 +1293,7 @@ function renderStoreContent(){
   if(!currentUser||!currentUserData)return;
   const content=document.getElementById('storeContent');
   content.innerHTML=`<div class="postibits-badge" style="margin:0 auto 1rem;width:fit-content">Tienes ${currentUserData.postibits} PostiBits</div>
-    <p class="section-label" style="margin-top:0">🐣 Mascotas</p>
+    <div class="petshop-banner">🐾 Posti-mascotas <span>tu tiendita de mascotas de bolsillo</span></div>
     <div class="mascot-grid" id="mascotGrid"></div>
     <p class="section-label">🎨 Colores de mascota</p>
     <div id="mascotSkinsSection"></div>
@@ -1270,8 +1306,8 @@ function renderStoreContent(){
     const owned=(currentUserData.ownedMascots||[]).includes(id);
     const equipped=currentUserData.equippedMascot===id;
     const card=document.createElement('div');
-    card.className='mascot-card'+(owned?' owned':'')+(equipped?' equipped':'');
-    card.innerHTML=`<div class="mascot-svg">${m.svg}</div><div class="mascot-name">${m.name}</div><div class="mascot-desc">${m.desc}</div><div class="mascot-price">${m.price===0?'Gratis':m.price+' PostiBits'}</div>`;
+    card.className='mascot-card habitat-card habitat-'+id+(owned?' owned':'')+(equipped?' equipped':'');
+    card.innerHTML=`<div class="habitat-scene"><div class="mascot-svg">${m.svg}</div></div><div class="mascot-name">${m.name}</div><div class="mascot-desc">${m.desc}</div><div class="mascot-price">${m.price===0?'Gratis':m.price+' PostiBits'}</div>`;
     const btn=document.createElement('button');
     btn.className='mascot-btn '+(equipped?'equipped-label':owned?'equip':(currentUserData.postibits<m.price?'locked':'buy'));
     btn.textContent=equipped?'✓ Equipada':owned?'Equipar':'Comprar';
@@ -1300,9 +1336,9 @@ function renderStoreContent(){
       const owned=ownedSkins.includes(pal.id);
       const equipped=equippedSkin===pal.id;
       const card=document.createElement('div');
-      card.className='mascot-card'+(owned?' owned':'')+(equipped?' equipped':'');
+      card.className='mascot-card habitat-card habitat-'+mid+(owned?' owned':'')+(equipped?' equipped':'');
       const previewSvg=getMascotSvg(mid,null,pal.id);
-      card.innerHTML=`<div class="mascot-svg">${previewSvg}</div><div class="mascot-name">${pal.name}</div><div class="mascot-price">${pal.price===0?'Incluido':pal.price+' PostiBits'}</div>`;
+      card.innerHTML=`<div class="habitat-scene"><div class="mascot-svg">${previewSvg}</div></div><div class="mascot-name">${pal.name}</div><div class="mascot-price">${pal.price===0?'Incluido':pal.price+' PostiBits'}</div>`;
       const btn=document.createElement('button');
       btn.className='mascot-btn '+(equipped?'equipped-label':owned?'equip':(currentUserData.postibits<pal.price?'locked':'buy'));
       btn.textContent=equipped?'✓ Puesto':owned?'Ponerlo':'Comprar';
@@ -1521,6 +1557,7 @@ async function dropNote(){
     color:MOOD_COLORS[selectedMood],
     emoji:MOOD_EMOJIS[selectedMood],
     author:anon?'Anónima 🫧':(currentUser?currentUser.username:'Anónima 🫧'),
+    authorBadge:(!anon&&currentUserData)?(currentUserData.isAdmin?'👑':currentUserData.isModerator?'🧹':null):null,
     anonymous:anon,
     timestamp:Date.now(),
     responseType:respType,
@@ -1639,7 +1676,7 @@ function renderFeed(){
     const footer=document.createElement('div');footer.className='note-footer';
     const author=document.createElement('span');author.className='note-author';
     const mascotSvgForNote=getMascotSvg(n.mascotId||'postiboo',n.mood,n.mascotSkin||'clasico');
-    author.innerHTML=`<span class="note-mascot-icon">${mascotSvgForNote}</span>${escapeHtml(n.author)}`;
+    author.innerHTML=`<span class="note-mascot-icon">${mascotSvgForNote}</span>${n.authorBadge?n.authorBadge+' ':''}${escapeHtml(n.author)}`;
 
     const rightSide=document.createElement('div');
     rightSide.style.cssText='display:flex;align-items:center;gap:.5rem';
