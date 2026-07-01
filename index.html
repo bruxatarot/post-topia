@@ -14,6 +14,8 @@
 }
 html,body{height:100%;width:100%}
 body{font-family:var(--font);background:#fdf0f8;color:var(--text);min-height:100vh;overflow-x:hidden;position:relative}
+.kofi-fallback-btn{position:fixed;bottom:1rem;right:1rem;z-index:250;background:#ba66b7;color:white;font-family:var(--font);font-weight:700;font-size:.85rem;text-decoration:none;padding:.6rem 1.1rem;border-radius:50px;box-shadow:0 4px 14px rgba(186,102,183,.4);transition:transform .15s}
+.kofi-fallback-btn:hover{transform:scale(1.05)}
 
 .screen{display:none;width:100%;min-height:100vh;flex-direction:column}
 .screen.active{display:flex}
@@ -1129,7 +1131,7 @@ function renderProfileContent(){
         <div class="profile-avatar">${avatarSvg}</div>
         <p style="color:var(--text);margin-bottom:.3rem">Hola, <strong>${currentUserData.isAdmin?'👑 ':currentUserData.isModerator?'🧹 ':''}${escapeHtml(currentUser.username)}</strong> 💛</p>
         <div class="postibits-badge" style="margin:0 auto;width:fit-content">${currentUserData.postibits} PostiBits</div>
-        <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 PostiBits</p>
+        <p class="streak-note">Racha de login: ${currentUserData.loginStreak||0} día${(currentUserData.loginStreak||0)===1?'':'s'} · cada 7 días ganas +5 PostiBits<br/>+1 PostiBit al día por escribir · hasta 5 al día por apoyar</p>
         <button onclick="closeAuthModal();showStoreModal()" class="btn btn-primary" style="width:100%">🛍️ Cambiar mascota / Post-itienda</button>
       </div>
 
@@ -1789,6 +1791,7 @@ async function dropNote(){
     allNotes=localNotes;
     closeCreateModal();
     renderFeed();
+    if(currentUser)awardWriteBit();
     if(wasPositive){
       setTimeout(showWinToast,500);
       setTimeout(launchConfetti,600);
@@ -1800,6 +1803,7 @@ async function dropNote(){
   try{
     await addDoc(collection(db,'notes'),note);
     closeCreateModal();
+    if(currentUser)awardWriteBit().catch(e=>console.error('write bit error',e));
     if(wasPositive){
       setTimeout(showWinToast,500);
       setTimeout(launchConfetti,600);
@@ -2051,6 +2055,30 @@ async function awardSupportBit(){
   }catch(e){console.error('awardSupportBit error',e)}
 }
 
+// +1 PostiBit por escribir, máximo una vez al día (sin importar cuántas notitas publiques ese día)
+// — a propósito no da más, para que nadie escriba solo por ganar puntos.
+async function awardWriteBit(){
+  if(!currentUser||!currentUserData)return;
+  const today=todayStr();
+  if(currentUserData.noteRewardDate===today)return;
+
+  if(localMode){
+    currentUserData.postibits=(currentUserData.postibits||0)+1;
+    currentUserData.noteRewardDate=today;
+    updatePostibitsBadge();
+    if(document.getElementById('storeModal').classList.contains('active'))renderStoreContent();
+    if(document.getElementById('authModal').classList.contains('active')&&currentUser)renderProfileContent();
+    return;
+  }
+
+  try{
+    await updateDoc(doc(db,'users',currentUser.id),{
+      postibits:increment(1),
+      noteRewardDate:today
+    });
+  }catch(e){console.error('awardWriteBit error',e)}
+}
+
 async function sendCustomResponse(){
   const ta=document.getElementById('customResponseText');
   const txt=ta.value.trim();
@@ -2147,5 +2175,28 @@ window.showStoreModal=showStoreModal;
 
 document.addEventListener('DOMContentLoaded',init);
 </script>
+
+<!-- Ko-fi donation button -->
+<a id="kofiFallback" href="https://ko-fi.com/bruxatarot" target="_blank" rel="noopener" class="kofi-fallback-btn">☕ Apóyame en Ko-fi</a>
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js' onerror="console.warn('Ko-fi overlay script failed to load, using fallback button')"></script>
+<script>
+window.addEventListener('load',function(){
+  try{
+    if(typeof kofiWidgetOverlay!=='undefined'){
+      kofiWidgetOverlay.draw('bruxatarot',{
+        'type':'floating-chat',
+        'floating-chat.donateButton.text':'Support me',
+        'floating-chat.donateButton.background-color':'#00b9fe',
+        'floating-chat.donateButton.text-color':'#fff'
+      });
+      const fb=document.getElementById('kofiFallback');
+      if(fb)fb.style.display='none';
+    }
+  }catch(e){
+    console.warn('Ko-fi overlay widget failed to initialize, fallback button stays visible',e);
+  }
+});
+</script>
+
 </body>
 </html>
